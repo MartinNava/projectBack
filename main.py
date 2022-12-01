@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from routes.admins import router as AdminRouter
 from routes.log import router as LogRouter
 from routes.users import router as UserRouter
+from routes.modelDatabase import router as ModelDatabaseRouter
 
 from middlewares.auth import validateRequest
 
@@ -33,6 +34,7 @@ def verifyToken(request: Request):
 app.include_router(LogRouter)
 app.include_router(AdminRouter)
 app.include_router(UserRouter)
+app.include_router(ModelDatabaseRouter)
 
 
 if __name__ == "__main__":

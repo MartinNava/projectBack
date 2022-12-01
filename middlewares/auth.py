@@ -28,7 +28,7 @@ def signJWT(id: int, email: str, name: str, last_name: str, type: str) -> Dict[s
 
     token = jwt.encode(payload, f.read(), algorithm="RS256")
     f.close()
-    return{"token": token}
+    
 
 
 def auth(token: str, acceptedRoles) -> Dict[str, str]:
