@@ -10,10 +10,14 @@ from typing import Optional
 import pandas as pd
 import numpy as np
 from joblib import load, dump
+import json
+
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
 
 from config.mongo import getMongoURL
 
-from models.modelDatabase import registerElement
+from models.modelDatabase import registerElement, evaluateElement
 
 router = APIRouter(prefix="/api/model-database")
 
@@ -64,14 +68,39 @@ def dataDeletion(id: str, request: Request):
     return JSONResponse(status_code=200, content={"message": "Data has been deleted successfully"})
 
 
-@router.post("/train-model")
+@router.post("/model")
 def trainModel():
     query = {}
-    data = list(db[tbMName].find(query))
+    data = list(db[tbMName].find(query, {"_id": 0}))
     countInDB = db[tbMName].count_documents(query)
 
-    dataFrame = pd.read_json(data)
+    dataFrame = pd.DataFrame(data)
+    dataFrame["Outcome"] = dataFrame["Outcome"].replace([0, 1], ["Sano", "Enfermo"])
+    
+    X = dataFrame.drop("Outcome", axis = 1)
+    Y = dataFrame["Outcome"]
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.2)
+    dt = DecisionTreeClassifier()
+    dt.fit(X_train, Y_train)
+    dump(dt, "modelo.joblib")
 
-    print(dataFrame)
+    return JSONResponse(status_code=200, content={"message": "Petición Correcta", "precisionDelModelo": str(dt.score(X_test, Y_test))})
 
-    return JSONResponse(status_code=200, content={"message": "Petición Correcta", "countInDB": countInDB})
+
+@router.post("/model-prediction")
+def prediction(data: evaluateElement):
+    dt = load("modelo.joblib")
+
+    datosEntrada = np.array([
+        data.Pregnancies,
+        data.Glucose,
+        data.BloodPresure,
+        data.SkinThickness,
+        data.Insulin,
+        data.BMI,
+        data.DiabetesPedigreeFunction,
+        data.Age
+    ])
+
+    resultado = dt.predict(datosEntrada.reshape(1, -1))
+    return JSONResponse(status_code=200, content={"message": "Se ha realizado la petición", "Resultado": str(resultado[0])})

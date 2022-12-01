@@ -10,3 +10,13 @@ class registerElement(BaseModel):
     DiabetesPedigreeFunction: float
     Age: float
     Outcome: float
+
+class evaluateElement(BaseModel):
+    Pregnancies: float
+    Glucose: float
+    BloodPresure: float
+    SkinThickness: float
+    Insulin: float
+    BMI: float
+    DiabetesPedigreeFunction: float
+    Age: float
