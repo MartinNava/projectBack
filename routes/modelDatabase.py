@@ -68,6 +68,11 @@ def dataDeletion(id: str, request: Request):
     return JSONResponse(status_code=200, content={"message": "Data has been deleted successfully"})
 
 
+@router.options("/registro")
+def options():
+    return JSONResponse(status_code=200, content={"message": "ok"})
+
+
 @router.post("/model")
 def trainModel():
     query = {}

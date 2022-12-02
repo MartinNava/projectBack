@@ -1,5 +1,6 @@
 from urllib.request import Request
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from starlette.requests import Request
 import uvicorn
@@ -15,6 +16,14 @@ from middlewares.auth import validateRequest
 load_dotenv()
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/api")
